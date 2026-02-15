@@ -87,7 +87,7 @@
   line-height: 30px;
 }
 
-.popup_is-opened {
+.popup_opened {
   display: flex;
 }
 
@@ -115,6 +115,29 @@
   left: 0;
   top: calc(100% + 10px);
   margin: 0;
+}
+
+.form__input_type_error {
+  border-bottom: 1px solid #ff0000;
+}
+
+.form__input-error {
+  font-size: 12px;
+  line-height: 15px;
+  color: #ff0000;
+  display: block;
+  min-height: 30px;
+  opacity: 0;
+}
+
+.form__input-error_active {
+  opacity: 1;
+}
+
+.form__submit_disabled {
+  background: #000;
+  opacity: 0.2;
+  pointer-events: none;
 }
 
 @media screen and (max-width: 544px) {
