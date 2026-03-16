@@ -41,7 +41,7 @@
       <footer class="footer page__section">
         <p class="footer__copyright">© 2025 Around The U.S.</p>
       </footer>
-      <div class="popup" id="edit-popup">
+      <div class="popup popup_type_edit-profile">
         <div class="popup__content">
           <button
             aria-label="Cerrar ventana emergente"
@@ -59,6 +59,7 @@
               required
               minlength="2"
               maxlength="40"
+              autocomplete="name"
             />
             <span class="form__input-error" id="profile-name-error"></span>
 
@@ -71,6 +72,7 @@
               required
               minlength="2"
               maxlength="200"
+              autocomplete="off"
             />
             <span
               class="form__input-error"
@@ -83,7 +85,7 @@
           </form>
         </div>
       </div>
-      <div class="popup" id="add-popup">
+      <div class="popup popup_type_new-card">
         <div class="popup__content">
           <button
             aria-label="Cerrar ventana emergente"
@@ -95,7 +97,7 @@
             <input
               id="place-name"
               class="popup__input form__input popup__input_type_card-name"
-              name="place-name"
+              name="title"
               placeholder="Título"
               type="text"
               required
@@ -121,14 +123,14 @@
         </div>
       </div>
 
-      <div class="popup" id="image-popup">
-        <div class="popup__content popup__content_content_image">
+      <div class="popup popup_type_image">
+        <div class="popup__content popup__content_type_image">
           <button
             aria-label="Cerrar ventana emergente"
             class="popup__close"
             type="button"
           ></button>
-          <img alt="" class="popup__image" src="#" />
+          <img alt="Imagen ampliada" class="popup__image" src="#" />
           <p class="popup__caption"></p>
         </div>
       </div>
@@ -151,7 +153,7 @@
         </div>
       </li>
     </template>
-    <script src="./scripts/validate.js" defer></script>
-    <script src="./scripts/index.js" defer></script>
+
+    <script type="module" src="./pages/index.js"></script>
   </body>
 </html>
