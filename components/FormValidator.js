@@ -2,9 +2,11 @@ export class FormValidator {
   constructor(config, formElement) {
     this._config = config;
     this._formElement = formElement;
+
     this._inputList = Array.from(
       this._formElement.querySelectorAll(this._config.inputSelector),
     );
+
     this._buttonElement = this._formElement.querySelector(
       this._config.submitButtonSelector,
     );
@@ -15,6 +17,8 @@ export class FormValidator {
       `#${inputElement.id}-error`,
     );
 
+    if (!errorElement) return; // 🛡️ evita crash
+
     inputElement.classList.add(this._config.inputErrorClass);
     errorElement.textContent = inputElement.validationMessage;
     errorElement.classList.add(this._config.errorClass);
@@ -24,6 +28,8 @@ export class FormValidator {
     const errorElement = this._formElement.querySelector(
       `#${inputElement.id}-error`,
     );
+
+    if (!errorElement) return;
 
     inputElement.classList.remove(this._config.inputErrorClass);
     errorElement.textContent = "";

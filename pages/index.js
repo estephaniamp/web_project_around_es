@@ -3,98 +3,158 @@ import { FormValidator } from "../components/FormValidator.js";
 import { Section } from "../components/Section.js";
 import { PopupWithImage } from "../components/PopupWithImage.js";
 import { PopupWithForm } from "../components/PopupWithForm.js";
+import { PopupWithConfirmation } from "../components/PopupWithConfirmation.js";
 import { UserInfo } from "../components/UserInfo.js";
+import { Api } from "../components/Api.js";
 
-const initialCards = [
-  {
-    name: "Valle de Yosemite",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg",
+const api = new Api({
+  baseUrl: "https://around-api.es.tripleten-services.com/v1",
+  headers: {
+    authorization: "49fcb6ae-832d-4765-bbfa-4092ca2625ec",
+    "Content-Type": "application/json",
   },
-  {
-    name: "Lago Louise",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lake-louise.jpg",
-  },
-  {
-    name: "Montañas Calvas",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_bald-mountains.jpg",
-  },
-  {
-    name: "Latemar",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_latemar.jpg",
-  },
-  {
-    name: "Parque Nacional de la Vanoise",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_vanoise.jpg",
-  },
-  {
-    name: "Lago di Braies",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lago.jpg",
-  },
-];
+});
 
-const editProfileButton = document.querySelector(".profile__edit-button");
-const addCardButton = document.querySelector(".profile__add-button");
-
-const nameInput = document.querySelector("#profile-name");
-const jobInput = document.querySelector("#profile-description");
+let userId;
 
 const userInfo = new UserInfo({
   nameSelector: ".profile__title",
   jobSelector: ".profile__description",
+  avatarSelector: ".profile__image",
 });
 
 const imagePopup = new PopupWithImage(".popup_type_image");
 imagePopup.setEventListeners();
 
+const popupEditProfile = new PopupWithForm(
+  ".popup_type_edit-profile",
+  handleEditProfileSubmit,
+);
+
+popupEditProfile.setEventListeners();
+
+const popupAddCard = new PopupWithForm(
+  ".popup_type_new-card",
+  handleAddCardSubmit,
+);
+
+popupAddCard.setEventListeners();
+
+const popupAvatar = new PopupWithForm(".popup_type_avatar", handleAvatarSubmit);
+
+popupAvatar.setEventListeners();
+
+const confirmationPopup = new PopupWithConfirmation(".popup_type_delete");
+
+confirmationPopup.setEventListeners();
+
+const editProfileButton = document.querySelector(".profile__edit-button");
+const addCardButton = document.querySelector(".profile__add-button");
+const avatarButton = document.querySelector(".profile__image-container");
+
+const nameInput = document.querySelector("#profile-name");
+const jobInput = document.querySelector("#profile-description");
+
 function createCard(item) {
-  const card = new Card(item, "#card-template", (name, link) => {
-    imagePopup.open(name, link);
-  });
+  const card = new Card(
+    item,
+    userId,
+    "#card-template",
+    handleImageClick,
+    handleDeleteClick,
+    handleLikeClick,
+  );
 
   return card.generateCard();
 }
 
 const cardSection = new Section(
   {
-    items: initialCards,
     renderer: (item) => {
-      const cardElement = createCard(item);
-      cardSection.addItem(cardElement);
+      cardSection.addItem(createCard(item));
     },
   },
   ".cards__list",
 );
 
-cardSection.renderItems();
+function handleImageClick(name, link) {
+  imagePopup.open(name, link);
+}
 
-const editProfilePopup = new PopupWithForm(
-  ".popup_type_edit-profile",
-  (data) => {
-    userInfo.setUserInfo({
-      name: data.name,
-      job: data.description,
-    });
+function handleLikeClick(card) {
+  const isLiked = card.isLiked();
 
-    editProfilePopup.close();
-  },
-);
+  const request = isLiked
+    ? api.removeLike(card.getId())
+    : api.addLike(card.getId());
 
-editProfilePopup.setEventListeners();
+  request
+    .then((updatedCard) => {
+      card.updateLikes(updatedCard);
+    })
+    .catch((err) => console.log(err));
+}
 
-const addCardPopup = new PopupWithForm(".popup_type_new-card", (data) => {
-  const cardElement = createCard({
-    name: data.title,
-    link: data.link,
+function handleDeleteClick(card) {
+  confirmationPopup.open();
+
+  confirmationPopup.setSubmitAction(() => {
+    api
+      .deleteCard(card.getId())
+      .then(() => {
+        card.removeCard();
+        confirmationPopup.close();
+      })
+      .catch((err) => console.log(err));
   });
+}
 
-  cardSection.addItem(cardElement);
+function handleEditProfileSubmit({ name, description }) {
+  popupEditProfile.renderLoading(true);
 
-  document.querySelector("#add-card-form").reset();
+  api
+    .updateUserInfo(name, description)
+    .then((data) => {
+      userInfo.setUserInfo({
+        name: data.name,
+        job: data.about,
+        avatar: data.avatar,
+      });
+      popupEditProfile.close();
+    })
+    .catch((err) => console.log(err))
+    .finally(() => popupEditProfile.renderLoading(false));
+}
 
-  addCardPopup.close();
-});
+function handleAddCardSubmit({ title, link }) {
+  popupAddCard.renderLoading(true);
 
-addCardPopup.setEventListeners();
+  api
+    .addCard(title, link)
+    .then((newCard) => {
+      cardSection.addItem(createCard(newCard));
+      popupAddCard.close();
+    })
+    .catch((err) => console.log(err))
+    .finally(() => popupAddCard.renderLoading(false));
+}
+
+function handleAvatarSubmit({ avatar }) {
+  popupAvatar.renderLoading(true);
+
+  api
+    .updateAvatar(avatar)
+    .then((data) => {
+      userInfo.setUserInfo({
+        name: data.name,
+        job: data.about,
+        avatar: data.avatar,
+      });
+      popupAvatar.close();
+    })
+    .catch((err) => console.log(err))
+    .finally(() => popupAvatar.renderLoading(false));
+}
 
 editProfileButton.addEventListener("click", () => {
   const userData = userInfo.getUserInfo();
@@ -104,13 +164,17 @@ editProfileButton.addEventListener("click", () => {
 
   formValidators["edit-profile-form"].resetValidation();
 
-  editProfilePopup.open();
+  popupEditProfile.open();
 });
 
 addCardButton.addEventListener("click", () => {
   formValidators["add-card-form"].resetValidation();
+  popupAddCard.open();
+});
 
-  addCardPopup.open();
+avatarButton.addEventListener("click", () => {
+  formValidators["avatar-form"].resetValidation();
+  popupAvatar.open();
 });
 
 const validationConfig = {
@@ -136,3 +200,17 @@ formList.forEach((formElement) => {
 
   validator.enableValidation();
 });
+
+Promise.all([api.getUserInfo(), api.getInitialCards()])
+  .then(([userData, cards]) => {
+    userId = userData._id;
+
+    userInfo.setUserInfo({
+      name: userData.name,
+      job: userData.about,
+      avatar: userData.avatar,
+    });
+
+    cardSection.renderItems(cards);
+  })
+  .catch((err) => console.log(err));
