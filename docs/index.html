@@ -1,11 +1,14 @@
 <!doctype html>
+
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta content="ie=edge" http-equiv="X-UA-Compatible" />
     <title>Around The U.S.</title>
-    <link rel="icon" href="/docs/images/favicon.ico" type="icono" />
+
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon" />
+
     <link href="./index.css" rel="stylesheet" />
   </head>
 
@@ -15,16 +18,17 @@
         <img
           alt="Logotipo Around The U.S."
           class="logo header__logo"
-          src="/docs/images/logo.svg"
+          src="./images/logo.svg"
         />
       </header>
 
+      ```
       <main class="content">
         <section class="profile page__section">
           <div class="profile__image-container">
             <img
               class="profile__image"
-              src="/docs/images/avatar.jpg"
+              src="./images/avatar.jpg"
               alt="Avatar"
             />
             <div class="profile__image-overlay"></div>
@@ -58,6 +62,7 @@
         <p class="footer__copyright">© 2026 Around The U.S.</p>
       </footer>
 
+      <!-- POPUPS -->
       <div class="popup popup_type_edit-profile">
         <div class="popup__content">
           <button class="popup__close" type="button"></button>
@@ -173,12 +178,10 @@
     <template id="card-template">
       <li class="card">
         <img class="card__image" src="" alt="" />
-
         <button class="card__delete-button" type="button"></button>
 
         <div class="card__description">
           <h2 class="card__title"></h2>
-
           <div class="card__like-container">
             <button class="card__like-button" type="button"></button>
           </div>
